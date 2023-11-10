@@ -1,8 +1,5 @@
 FROM ubuntu:18.04
 
-RUN apt-get update && \
-    apt-get install -y pocl-opencl-icd ocl-icd-opencl-dev gcc clinfo
+RUN apt-get update && apt install opencl-headers pocl-opencl-icd ocl-icd-opencl-dev gcc g++ -y
 
 WORKDIR /app
-
-COPY host.c /app/

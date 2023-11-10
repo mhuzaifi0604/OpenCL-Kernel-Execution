@@ -1,0 +1,12 @@
+version: "2"
+
+services:
+  master:
+    build:
+      context: .
+      dockerfile: dockerfile
+    user: root  
+    working_dir: /app
+    entrypoint: ["tail", "-f", "/dev/null"]
+    volumes:
+      - ./project:/app
