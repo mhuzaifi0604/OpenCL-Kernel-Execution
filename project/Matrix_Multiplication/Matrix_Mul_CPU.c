@@ -16,19 +16,8 @@ Matrix Multiplication using CPU
 #include <time.h>
 #define Matrix_Size 512
 
-// Function to generate a dynamic matrix of size 512 x 512
-int ** Matrix_Generator(){
-    // creating 2D dynamic integer matrix for matrix multiplication
-    int ** Matrix = (int**)malloc(sizeof(int*)*Matrix_Size);
-    for (int i = 0; i < Matrix_Size; i++)
-        Matrix[i] = (int*)malloc(sizeof(int)*Matrix_Size); // allocating dynamic memory to matrices
-
-    return Matrix; // returning the matrix
-
-}
-
 // funtion to initialize random values in 2D matrices
-int** Random_initializer(int** Matrix, char matrix){
+void Random_initializer(int Matrix[Matrix_Size][Matrix_Size], char matrix){
     // Initializing the Matrix with randonm values
     for (int i = 0; i < Matrix_Size; i++){
         for (int j = 0; j < Matrix_Size; j++){
@@ -38,42 +27,52 @@ int** Random_initializer(int** Matrix, char matrix){
                 Matrix[i][j] = rand() % 100; // storing random values in matrices
         }
     }
-    return Matrix; // returning the 2D matrix
 }
 
 // function to print Matrices
-void Print_Matrix(int ** Matrix, char matrix){
-    printf("\n\t\t:::::::::::::::::::::::::::::::::::::::: MATRIX - %c ::::::::::::::::::::::::::::::::::::::::\n", matrix);
+void Print_Matrix(int Matrix[Matrix_Size][Matrix_Size], char matrix){
+    printf("\n\t\t:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: MATRIX - %c ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n", matrix);
     for (int i = 0; i < Matrix_Size; i++){ // Traversing to teh end of rows
         printf("\t[");
         for (int j = 0; j < Matrix_Size; j++){ // traversing to teh end of each colomn
-            printf("%d -- ", Matrix[i][j]); // printing the matrix element
+            printf("%d ", Matrix[i][j]); // printing the matrix element
+            if ((j%20) == 0){
+                printf("]\n");
+            }
             
         }
         printf("]\n\n");
     }
-    printf("\n\t\t::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
+    printf("\n\t\t::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
 }
 
 int main (int argc, char** argv){
     srand(time (NULL));
     // Creating dynamic Matrices of Sixe 512 x 512
     // Creating Matrix A & B for Matrix Multiplication
-    int ** Matrix_A = Matrix_Generator();
-    int ** Matrix_B = Matrix_Generator();
-
+    int Matrix_A[Matrix_Size][Matrix_Size];
+    Random_initializer(Matrix_A, 'A');
+    
+    int Matrix_B[Matrix_Size][Matrix_Size];
+    Random_initializer(Matrix_B, 'B');
+    
     // Creating a Matrix C to store the result of matrix multiplication of A & B
-    int ** Matrix_C = Matrix_Generator();
 
-    // Initializing the matrix with random numbers to perform multiplication
-    Matrix_A = Random_initializer(Matrix_A, 'A');
-    Matrix_B = Random_initializer(Matrix_B, 'B');
-    Matrix_C = Random_initializer(Matrix_C, 'C'); // initializing matrix C with all 0s
+    int Matrix_C[Matrix_Size][Matrix_Size];
+    Random_initializer(Matrix_C, 'C');
+    // for (int i = 0; i < Matrix_Size; i++){
+    //     for (int j = 0; j < Matrix_Size; j++){
+    //         Matrix_C[i][j] = 0; // storing random values in matrices
+    //     }
+    // }
     
     // Prinitng Matrices A & B
     // Print_Matrix(Matrix_A, 'A');
     // Print_Matrix(Matrix_B, 'B');
-    printf("\nMatrix Assigning and printing Complete\n\n starting Clock time\n\n Getting Platforms and Device ID and Names\n\n");
+    printf("\nMatrix Assigning and printing Complete\n"
+        "\n starting Clock time\n\n"
+        "Getting Platforms and Device ID and Names\n\n"
+    );     
 
     // Creating a variable to store the start time of the program
     clock_t start_time = clock();
@@ -207,6 +206,8 @@ int main (int argc, char** argv){
     printf("Kernel Executed Successfully!\n");
     // reading the memory object from the kernel back into local work units
     err = clEnqueueReadBuffer(command_queue, Matrix_C_mem_obj, CL_TRUE, 0, Matrix_Size*Matrix_Size*sizeof(int), Matrix_C, 0, NULL, NULL);
+    int Csize = sizeof(Matrix_C)/sizeof(Matrix_C[0][0]);
+    printf("Csize: %d\n", Csize);
     if(err != CL_SUCCESS){
         printf("Error: Failed to read buffer\n");
         return EXIT_FAILURE; // exiting in case of failure on reading buffer
@@ -233,6 +234,13 @@ int main (int argc, char** argv){
 
     // printing teh resultant matrix C
     Print_Matrix(Matrix_C, 'C');
+    // for (int i = 0; i < Matrix_Size; i++){
+    //     for (int j = 0; j < Matrix_Size; j++){
+    //         printf("%d -- ", Matrix_C[i][j]); // printing the matrix element
+            
+    //     }
+    //     printf("\n\n");
+    // }
 
     return 0;
 }
