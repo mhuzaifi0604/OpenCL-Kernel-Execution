@@ -5,7 +5,7 @@ Muhammad Huzaifa
 Parallel & distributed Computing
 Assignment # 03
 Task # 01
-Matrix Multiplication using CPU
+Matrix Multiplication using CPU + Sequential
 
 */
 
@@ -266,7 +266,7 @@ int main (int argc, char** argv){
     clReleaseContext(context);
     // creating a variable to store the end time of the program
     // calculating the total time taken by the program
-    double total_time = (double)(end_time - start_time)/CLOCKS_PER_SEC;
+    double total_time = (double)(end_time - start_time)/CLOCKS_PER_SEC * 1000.0;
 
     // printing teh resultant matrix C
     // Print_Matrix(Matrix_C, 'C');

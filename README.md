@@ -71,3 +71,28 @@ To visualize the difference in execution times of both CPU and SEQ matrix multip
 Then I extracted the execution times from teh output of both mode executions and stored in 2 different Arrays.
 Then I used matplotlib to plot the graph using both mode's execution time and here is teh final result.
 <img src='/project/Matrix_Multiplication/CPU_vs_SEQ.png' alt='CPU exec Output'>
+
+## Task # 02 Merge Sort Using CPU
+```
+cd Merge Sort
+gcc Merge.c -o merge -lOenCL
+./merge
+gcc SEQ_Merge_Sort.c -o sort
+./sort
+```
+After running the executable you will get something like this:
+
+#### CPU based Kernel Execution
+
+<img src='/Pics/Screenshot_9.png' alt='CPU exec Output'>
+As you can see in the screenshot above, the name of the platform and the name of the CPU device used for the execution of kernel code responsible for the multiplication of 2 matrices.
+
+#### Sequential Code Execution
+Similarly, Let's try and run treh sequential code and check for its execution time.
+<img src='/Pics/Screenshot_10.png' alt='CPU exec Output'>
+
+As you would have already notice that the execution time taken by a sequential code is rather high then the execution time taken by the CPU kernel code.
+
+## Visualizing the Results
+Following are teh visualized results of the execution times in CPU and Sequential code executions:
+<img src='/project/Merge Sort/CPU_vs_SEQ.png' alt='CPU exec Output'>
