@@ -138,9 +138,9 @@ int main (int argc, char** argv){
         // creating a variable to store the end time of the program
         // calculating the total time taken by the program in miliseconds
         printf("Sequential Execution Complete\n");
-        Print_Matrix(Matrix_C, 'C');
+        // Print_Matrix(Matrix_C, 'C');
         clock_t end_time = clock();
-         double total_time = (double)(end_time - start_time)/CLOCKS_PER_SEC;
+        double total_time = (double)(end_time - start_time)/CLOCKS_PER_SEC;
         // printing total time taken by the program
         printf("\n\nTotal Time Taken: %f\n\n", total_time);
         return 0;
