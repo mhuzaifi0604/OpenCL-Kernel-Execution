@@ -14,6 +14,7 @@ Matrix Multiplication using CPU
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 #define Matrix_Size 512
 
 // funtion to initialize random values in 2D matrices
@@ -46,7 +47,23 @@ void Print_Matrix(int Matrix[Matrix_Size][Matrix_Size], char matrix){
     printf("\n\t\t::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
 }
 
+void Seq_Matrix_Mult(int Matrix_A[][Matrix_Size], int Matrix_B[][Matrix_Size], int Matrix_C[][Matrix_Size]){
+    for (int i = 0; i < Matrix_Size; i++){
+        for (int j = 0; j < Matrix_Size; j++){
+            for (int k = 0; k < Matrix_Size; k++){
+                Matrix_C[i][j] += Matrix_A[i][k] * Matrix_B[k][j];
+            }
+        }
+    }
+}
+
 int main (int argc, char** argv){
+    if (argc != 2){
+        printf("Usage ./Object File <Kernel-Device (CPU, GPU, SEQ)>\n");
+        return EXIT_FAILURE; // exiting in case of invalid number of arguments
+    }
+    char * demand_device = argv[1];
+    printf("\nDevice Demanded: %s\n", demand_device);
     srand(time (NULL));
     // Creating dynamic Matrices of Sixe 512 x 512
     // Creating Matrix A & B for Matrix Multiplication
@@ -60,22 +77,18 @@ int main (int argc, char** argv){
 
     int Matrix_C[Matrix_Size][Matrix_Size];
     Random_initializer(Matrix_C, 'C');
-    // for (int i = 0; i < Matrix_Size; i++){
-    //     for (int j = 0; j < Matrix_Size; j++){
-    //         Matrix_C[i][j] = 0; // storing random values in matrices
-    //     }
-    // }
     
     // Prinitng Matrices A & B
     // Print_Matrix(Matrix_A, 'A');
     // Print_Matrix(Matrix_B, 'B');
+
     printf("\nMatrix Assigning and printing Complete\n"
         "\n starting Clock time\n\n"
         "Getting Platforms and Device ID and Names\n\n"
     );     
 
     // Creating a variable to store the start time of the program
-    clock_t start_time = clock();
+    
 
     // Declarinf Opencl variables
     cl_platform_id platform_ids;    // to get platform id
@@ -103,11 +116,34 @@ int main (int argc, char** argv){
     }
     printf("\n Platform Name: %s\n", platform_name);
 
-    // getting device ID
-    err = clGetDeviceIDs(platform_ids, CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
-    if (err != CL_SUCCESS){
-        printf("Error: Failed to get device id\n");
-        return EXIT_FAILURE; // exiting in case of failure on getting device id
+    //getting device ID
+    if (strcmp(demand_device, "GPU") == 0 || strcmp(demand_device, "gpu") == 0){
+        err = clGetDeviceIDs(platform_ids, CL_DEVICE_TYPE_GPU, 1, &device_id, NULL);
+        if (err != CL_SUCCESS){
+            printf("Error: Failed to get GPU device id\n");
+            return EXIT_FAILURE; // exiting in case of failure on getting device id
+        }
+    }
+    else if (strcmp(demand_device, "CPU") == 0 || strcmp(demand_device, "cpu") == 0){
+        err = clGetDeviceIDs(platform_ids, CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
+        if (err != CL_SUCCESS){
+            printf("Error: Failed to get CPU device id\n");
+            return EXIT_FAILURE; // exiting in case of failure on getting device id
+        }
+    }else if (strcmp(demand_device, "SEQ") == 0 || strcmp(demand_device, "seq") == 0){
+        printf("Sequential Execution\n");
+        // starting clock time
+        clock_t start_time = clock();
+        Seq_Matrix_Mult(Matrix_A, Matrix_B, Matrix_C);
+        // creating a variable to store the end time of the program
+        // calculating the total time taken by the program in miliseconds
+        printf("Sequential Execution Complete\n");
+        Print_Matrix(Matrix_C, 'C');
+        clock_t end_time = clock();
+         double total_time = (double)(end_time - start_time)/CLOCKS_PER_SEC;
+        // printing total time taken by the program
+        printf("\n\nTotal Time Taken: %f\n\n", total_time);
+        return 0;
     }
     
     // creating a variable to store device name
@@ -201,11 +237,13 @@ int main (int argc, char** argv){
     err = clSetKernelArg(kernel, 3, sizeof(int), (void*)&matrix_size);
     printf("Kernel Arguments Set Successfully!\n");
 
+    clock_t start_time = clock();
     size_t global_size[] = {Matrix_Size, Matrix_Size};
     clEnqueueNDRangeKernel(command_queue, kernel, 2, NULL, global_size, NULL, 0, NULL, NULL);
     printf("Kernel Executed Successfully!\n");
     // reading the memory object from the kernel back into local work units
     err = clEnqueueReadBuffer(command_queue, Matrix_C_mem_obj, CL_TRUE, 0, Matrix_Size*Matrix_Size*sizeof(int), Matrix_C, 0, NULL, NULL);
+    clock_t end_time = clock();
     int Csize = sizeof(Matrix_C)/sizeof(Matrix_C[0][0]);
     printf("Csize: %d\n", Csize);
     if(err != CL_SUCCESS){
@@ -227,20 +265,13 @@ int main (int argc, char** argv){
     clReleaseCommandQueue(command_queue);
     clReleaseContext(context);
     // creating a variable to store the end time of the program
-    clock_t end_time = clock();
     // calculating the total time taken by the program
     double total_time = (double)(end_time - start_time)/CLOCKS_PER_SEC;
-    printf("\n\nTotal Time Taken: %f\n\n", total_time);
 
     // printing teh resultant matrix C
-    Print_Matrix(Matrix_C, 'C');
-    // for (int i = 0; i < Matrix_Size; i++){
-    //     for (int j = 0; j < Matrix_Size; j++){
-    //         printf("%d -- ", Matrix_C[i][j]); // printing the matrix element
-            
-    //     }
-    //     printf("\n\n");
-    // }
+    // Print_Matrix(Matrix_C, 'C');
+    printf("Completed Matrix Multiplication Execution Using %s\n", demand_device);
+    printf("\n\nTotal Time Taken: %f\n\n", total_time);
 
     return 0;
 }
